@@ -1,0 +1,38 @@
+services:
+  web:
+    build: .
+    container_name: dbsec-lamp-web
+    ports:
+      - "80:80"
+    volumes:
+      - ./www:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.4
+    container_name: dbsec-lamp-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: appdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppassword
+    ports:
+      - "13306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./initdb:/docker-entrypoint-initdb.d
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: dbsec-lamp-pma
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
